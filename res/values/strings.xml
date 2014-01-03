@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">NFL Videos Redirect</string>
+    <string name="action_settings">Settings</string>
+    <string name="app_info">There are no options for this app.  If a URL for an NFL Video is launched, this app will attempt to capture it, find the direct link to the mp4 video, and launch that link.</string>
+    <string name="default_info">If you no longer wish to have this app be the default handler for NFL Video URLs, go to your Application Settings, find &quot;NFL Videos Redirect&quot;, and clear defaults.</string>
+
+</resources>
