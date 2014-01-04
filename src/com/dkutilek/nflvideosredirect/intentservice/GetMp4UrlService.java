@@ -1,6 +1,7 @@
 package com.dkutilek.nflvideosredirect.intentservice;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Scanner;
 
 import org.apache.http.HttpResponse;
@@ -47,10 +48,11 @@ public class GetMp4UrlService extends AsyncTask<String, Void, String[]> {
 				// Create and execute HTTP GET on url
 				HttpGet request = new HttpGet(url);
 				HttpResponse response = client.execute(request);
+				InputStream is = response.getEntity().getContent();
 				
 				// If response is HTTP OK (200), parse mp4 video path from HTML source 
 				if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-					Scanner scanner = new Scanner(response.getEntity().getContent());
+					Scanner scanner = new Scanner(is);
 					result[i] = scanner.findWithinHorizon("\\S*?\\.mp4", 0);
 				}
 				else if (context != null){
@@ -59,6 +61,11 @@ public class GetMp4UrlService extends AsyncTask<String, Void, String[]> {
 							" from url \"" + url + "\"",
 							Toast.LENGTH_LONG).show();
 				}
+				
+				try {
+					is.close();
+				} catch (IOException e) {/* close quietly */}
+				
 			} catch (ClientProtocolException e) {
 				if (context != null)
 					Toast.makeText(context,
