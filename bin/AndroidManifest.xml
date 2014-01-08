@@ -32,11 +32,127 @@
             android:theme="@android:style/Theme.Translucent.NoTitleBar" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:host="www.nfl.com" android:pathPrefix="/videos"
+
+                <data android:host="www.nfl.com"
+                    android:pathPrefix="/videos"
+                    android:scheme="http" />
+
+                <!-- AFC NORTH -->
+                <data android:host="www.baltimoreravens.com"
+                    android:pathPrefix="/videos/videos/"
+                    android:scheme="http" />
+                <data android:host="www.bengals.com"
+                    android:pathPrefix="/media-lounge/videos/"
+                    android:scheme="http" />
+                <data android:host="www.clevelandbrowns.com"
+                    android:pathPrefix="/media-center/videos/"
+                    android:scheme="http" />
+                <data android:host="www.steelers.com"
+                    android:pathPrefix="/video-and-audio/videos/"
+                    android:scheme="http" />
+
+                <!-- AFC SOUTH -->
+                <data android:host="www.houstontexans.com"
+                    android:pathPrefix="/tv-media/videos/"
+                    android:scheme="http" />
+                <data android:host="www.colts.com"
+                    android:pathPrefix="/videos/videos/"
+                    android:scheme="http" />
+                <data android:host="www.jaguars.com"
+                    android:pathPrefix="/media-gallery/videos/"
+                    android:scheme="http" />
+                <data android:host="www.titansonline.com"
+                    android:pathPrefix="/media-center/videos/"
+                    android:scheme="http" />
+
+                <!-- AFC EAST -->
+                <data android:host="www.buffalobills.com"
+                    android:pathPrefix="/video/videos/"
+                    android:scheme="http" />
+                <data android:host="www.miamidolphins.com"
+                    android:pathPrefix="/multimedia/videos/"
+                    android:scheme="http" />
+                <data android:host="www.patriots.com"
+                    android:pathPrefix="/media-center/videos/"
+                    android:scheme="http" />
+                <data android:host="www.newyorkjets.com"
+                    android:pathPrefix="/videos/videos/"
+                    android:scheme="http" />
+
+                <!-- AFC WEST -->
+                <data android:host="www.denverbroncos.com"
+                    android:pathPrefix="/multimedia/videos/"
+                    android:scheme="http" />
+                <data android:host="www.kcchiefs.com"
+                    android:pathPrefix="/media-center/videos/"
+                    android:scheme="http" />
+                <data android:host="www.raiders.com"
+                    android:pathPrefix="/media-vault/videos/"
+                    android:scheme="http" />
+                <data android:host="www.chargers.com"
+                    android:pathPrefix="/multimedia/videos/"
+                    android:scheme="http" />
+
+                <!-- NFC NORTH -->
+                <data android:host="www.chicagobears.com"
+                    android:pathPrefix="/multimedia/videos/"
+                    android:scheme="http" />
+                <data android:host="www.detroitlions.com"
+                    android:pathPrefix="/media-center/videos/"
+                    android:scheme="http" />
+                <data android:host="www.packers.com"
+                    android:pathPrefix="/media-center/videos/"
+                    android:scheme="http" />
+                <data android:host="www.vikings.com"
+                    android:pathPrefix="/media-vault/videos/"
+                    android:scheme="http" />
+
+                <!-- NFC SOUTH -->
+                <data android:host="www.atlantafalcons.com"
+                    android:pathPrefix="/media-lounge/videos/"
+                    android:scheme="http" />
+                <data android:host="www.panthers.com"
+                    android:pathPrefix="/media-vault/videos/"
+                    android:scheme="http" />
+                <data android:host="www.neworleanssaints.com"
+                    android:pathPrefix="/media-center/videos/"
+                    android:scheme="http" />
+                <data android:host="www.buccaneers.com"
+                    android:pathPrefix="/multimedia/videos/"
+                    android:scheme="http" />
+
+                <!-- NFC EAST -->
+                <data android:host="www.dallascowboys.com"
+                    android:pathPrefix="/multimedia/videos/"
+                    android:scheme="http" />
+                <data android:host="www.giants.com"
+                    android:pathPrefix="/videos/videos/"
+                    android:scheme="http" />
+                <data android:host="www.philadelphiaeagles.com"
+                    android:pathPrefix="/multimedia/videos/"
+                    android:scheme="http" />
+                <data android:host="www.redskins.com"
+                    android:pathPrefix="/media-gallery/videos/"
+                    android:scheme="http" />
+
+                <!-- NFC WEST -->
+                <data android:host="www.azcardinals.com"
+                    android:pathPrefix="/videos-photos/videos/"
+                    android:scheme="http" />
+                <data android:host="www.sf49ers.com"
+                    android:pathPrefix="/video/videos/"
+                    android:scheme="http" />
+                <data android:host="www.seahawks.com"
+                    android:pathPrefix="/videos-photos/videos/"
+                    android:scheme="http" />
+                <data android:host="www.stlouisrams.com"
+                    android:pathPrefix="/media-center/videos/"
                     android:scheme="http" />
             </intent-filter>
+
         </activity>
     </application>
 

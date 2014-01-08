@@ -6,9 +6,10 @@ import java.util.Scanner;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.content.Context;
@@ -24,8 +25,18 @@ import android.widget.Toast;
  */
 public class GetMp4UrlService extends AsyncTask<String, Void, String[]> {
 
-	private HttpClient client = new DefaultHttpClient();
+	private DefaultHttpClient client;
 	private Context context;
+	
+	/**
+	 * Pattern to search for a string of non-whitespace and non-quotation
+	 * ending with ".mp4".  Team websites link to the raw mp4 in a HTML DOM
+	 * attribute (content="http://[url].mp4").  nfl.com link to the raw mp4
+	 * in a comment above the flash plugin HTML DOM element
+	 * (&lt;!--&hellip;&nbsp;Video URL:&nbsp;&nbsp;&nbsp;[url].mp4&nbsp;
+	 * &hellip;--&gt;)
+	 */
+	private static final String pattern = "[^\"\\s]*?\\.mp4";
 	
 	/**
 	 * Construct a GetMp4UrlService
@@ -35,6 +46,8 @@ public class GetMp4UrlService extends AsyncTask<String, Void, String[]> {
 	 */
 	public GetMp4UrlService(Context context) {
 		this.context = context;
+		client = new DefaultHttpClient();
+		client.setCookieStore(new BasicCookieStore());
 	}
 	
 	@Override
@@ -49,17 +62,20 @@ public class GetMp4UrlService extends AsyncTask<String, Void, String[]> {
 				HttpGet request = new HttpGet(url);
 				HttpResponse response = client.execute(request);
 				InputStream is = response.getEntity().getContent();
+				StatusLine statusLine = response.getStatusLine();
 				
-				// If response is HTTP OK (200), parse mp4 video path from HTML source 
-				if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+				// If response is HTTP OK (200), parse mp4 video path from HTML
+				// source 
+				if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
 					Scanner scanner = new Scanner(is);
-					result[i] = scanner.findWithinHorizon("\\S*?\\.mp4", 0);
+					result[i] = scanner.findWithinHorizon(pattern, 0);
 				}
-				else if (context != null){
+				else if (context != null) {
 					Toast.makeText(context,
-							"Received HTTP Status " + response.getStatusLine().getReasonPhrase() +
-							" from url \"" + url + "\"",
-							Toast.LENGTH_LONG).show();
+						"Received HTTP Status " +
+						statusLine.getReasonPhrase() +
+						" from url \"" + url + "\"",
+						Toast.LENGTH_LONG).show();
 				}
 				
 				try {
