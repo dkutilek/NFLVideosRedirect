@@ -9,8 +9,16 @@ import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.params.ClientPNames;
+import org.apache.http.cookie.Cookie;
+import org.apache.http.cookie.CookieOrigin;
+import org.apache.http.cookie.CookieSpec;
+import org.apache.http.cookie.CookieSpecFactory;
+import org.apache.http.cookie.MalformedCookieException;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.cookie.BrowserCompatSpec;
+import org.apache.http.params.HttpParams;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -48,6 +56,19 @@ public class GetMp4UrlService extends AsyncTask<String, Void, String[]> {
 		this.context = context;
 		client = new DefaultHttpClient();
 		client.setCookieStore(new BasicCookieStore());
+		CookieSpecFactory csf = new CookieSpecFactory() {
+			public CookieSpec newInstance(HttpParams params) {
+				return new BrowserCompatSpec() {
+					@Override
+					public void validate(Cookie cookie, CookieOrigin origin)
+							throws MalformedCookieException {
+						// allow all cookies
+					}
+				};
+			}
+		};
+		client.getCookieSpecs().register("easy", csf);
+		client.getParams().setParameter(ClientPNames.COOKIE_POLICY, "easy");
 	}
 	
 	@Override
