@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.dkutilek.nflvideosredirect.intentservice.AsyncTaskCallback;
@@ -33,15 +34,19 @@ import com.dkutilek.nflvideosredirect.intentservice.GetMp4UrlService;
  */
 public class RedirectActivity extends Activity {
 	
+	private ProgressBar pb;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_redirect);
+		pb = (ProgressBar) this.findViewById(R.id.progressBar);
+		pb.setProgress(0);
 		
 		// Get url from intent
 		final String url = getIntent().getDataString();
 		
-		new GetMp4UrlService(this, new AsyncTaskCallback<String[]>() {
+		new GetMp4UrlService(pb, this, new AsyncTaskCallback<String[]>() {
 			@Override
 			public void taskComplete(String[] videoUrls) {
 				if (videoUrls == null)

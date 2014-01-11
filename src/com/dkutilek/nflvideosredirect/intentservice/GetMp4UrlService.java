@@ -25,6 +25,7 @@ import org.apache.http.params.HttpParams;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 /**
@@ -37,6 +38,8 @@ import android.widget.Toast;
 public class GetMp4UrlService extends AsyncTask<String, Integer, String[]> {
 
 	private DefaultHttpClient client;
+	private ProgressBar pb;
+	private int progress;
 	private Context context;
 	private AsyncTaskCallback<String[]> callback;
 	private String error = null;
@@ -63,7 +66,10 @@ public class GetMp4UrlService extends AsyncTask<String, Integer, String[]> {
 	 * {@link GetMp4UrlService#onPostExecute(String[]) onPostExecute} is
 	 * called.  If null, no functions are called.
 	 */
-	public GetMp4UrlService(Context context, AsyncTaskCallback<String[]> callback) {
+	public GetMp4UrlService(ProgressBar pb, Context context,
+			AsyncTaskCallback<String[]> callback) {
+		this.pb = pb;
+		this.progress = 0;
 		this.context = context;
 		this.callback = callback;
 		client = new DefaultHttpClient();
@@ -100,10 +106,18 @@ public class GetMp4UrlService extends AsyncTask<String, Integer, String[]> {
 				// If response is HTTP OK (200), parse mp4 video path from HTML
 				// source 
 				if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
+					long length = response.getEntity().getContentLength();
+					long count = 0;
 					// read in content one line at a time
 					BufferedReader br = new BufferedReader(new InputStreamReader(is));
 					String line = br.readLine();
 					while (line != null) {
+						count += line.length();
+						int progress = Math.round((((float) count) / ((float) length) * ((float) pb.getMax())));
+						if (this.progress < progress) {
+							this.progress = progress;
+							publishProgress(progress);
+						}
 						// Occasionally a line comes in thats way too large
 						// and attempting to process a regular expression on it
 						// freezes the entire UI, so we'll skip those for now
@@ -142,12 +156,19 @@ public class GetMp4UrlService extends AsyncTask<String, Integer, String[]> {
 				return null;
 			}
 		}
-		
 		return result;
+	}
+	
+	protected void onProgressUpdate(Integer... values) {
+		super.onProgressUpdate(values);
+		if (values.length > 0)
+			pb.setProgress(values[0]);
 	}
 	
     protected void onPostExecute(String[] result) {
     	super.onPostExecute(result);
+    	pb.setProgress(pb.getMax());
+    	
     	if (context != null && error != null)
 			Toast.makeText(context, error, Toast.LENGTH_LONG).show();
     	if (callback != null)
