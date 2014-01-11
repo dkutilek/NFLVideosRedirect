@@ -1,14 +1,12 @@
 package com.dkutilek.nflvideosredirect;
 
-import java.util.concurrent.ExecutionException;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.dkutilek.nflvideosredirect.intentservice.AsyncTaskCallback;
 import com.dkutilek.nflvideosredirect.intentservice.GetMp4UrlService;
 
 /**
@@ -35,20 +33,44 @@ import com.dkutilek.nflvideosredirect.intentservice.GetMp4UrlService;
  */
 public class RedirectActivity extends Activity {
 	
-	private ProgressBar pb;
-	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_redirect);
 		
-		pb = (ProgressBar) this.findViewById(R.id.progressBar);
-		// Start the redirect async task after a delay of 100 ms to let the
-		// progress bar load
-		pb.postDelayed(new Runnable() {
+		// Get url from intent
+		final String url = getIntent().getDataString();
+		
+		new GetMp4UrlService(this, new AsyncTaskCallback<String[]>() {
 			@Override
-			public void run() {
-				doRedirect();
+			public void taskComplete(String[] videoUrls) {
+				if (videoUrls == null)
+					return;
+				
+				String videoUrl = videoUrls[0];
+				if (videoUrl != null) {
+					// Launch a new intent to view the parsed url
+					Intent i = new Intent(Intent.ACTION_VIEW);
+					i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+					
+					// Raw video urls from the team websites include the complete
+					// url starting with "http://"
+					if (videoUrl.startsWith("http://")) {
+						i.setDataAndType(Uri.parse(videoUrl), "video/*");
+					}
+					// Urls from nfl.com need to include the prefix
+					// "http://ll.video.nfl.com"
+					else {
+						i.setDataAndType(Uri.parse("http://ll.video.nfl.com" +
+											videoUrl), "video/*");
+					}
+					startActivity(i);
+				}
+				else {
+					Toast.makeText(getApplicationContext(),
+							"No mp4 video path in HTML source of the url \"" +
+							url + "\"", Toast.LENGTH_LONG).show();
+				}
 				
 				// This call ensures that nothing is drawn for this activity
 				// and the UI is entirely non-existent.  Without this call
@@ -59,52 +81,6 @@ public class RedirectActivity extends Activity {
 				// via an intent-filter.
 				finish();
 			}
-		}, 100);
-	}
-	
-	private void doRedirect() {
-		// Get url from intent
-		String url = getIntent().getDataString();
-		
-		try {
-			String[] videoUrls = new GetMp4UrlService(this).execute(url).get();
-			if (videoUrls == null)
-				return;
-			
-			String videoUrl = videoUrls[0];
-			if (videoUrl != null) {
-				// Launch a new intent to view the parsed url
-				Intent i = new Intent(Intent.ACTION_VIEW);
-				i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-				
-				// Raw video urls from the team websites include the complete
-				// url starting with "http://"
-				if (videoUrl.startsWith("http://")) {
-					i.setDataAndType(Uri.parse(videoUrl), "video/*");
-				}
-				// Urls from nfl.com need to include the prefix
-				// "http://ll.video.nfl.com"
-				else {
-					i.setDataAndType(Uri.parse("http://ll.video.nfl.com" +
-										videoUrl), "video/*");
-				}
-				startActivity(i);
-			}
-			else {
-				Toast.makeText(getApplicationContext(),
-						"No mp4 video path in HTML source of the url \"" +
-						url + "\"", Toast.LENGTH_LONG).show();
-			}
-		} catch (InterruptedException e) {
-			Toast.makeText(getApplicationContext(),
-					"Interrupted: " + e.getMessage() +
-					" for url \"" + url + "\"",
-					Toast.LENGTH_LONG).show();
-		} catch (ExecutionException e) {
-			Toast.makeText(getApplicationContext(),
-					"Exception: " + e.getMessage() +
-					" for url \"" + url + "\"",
-					Toast.LENGTH_LONG).show();
-		}
+		}).execute(url);
 	}
 }

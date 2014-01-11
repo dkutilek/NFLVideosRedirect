@@ -38,6 +38,7 @@ public class GetMp4UrlService extends AsyncTask<String, Integer, String[]> {
 
 	private DefaultHttpClient client;
 	private Context context;
+	private AsyncTaskCallback<String[]> callback;
 	private String error = null;
 	
 	/**
@@ -57,9 +58,14 @@ public class GetMp4UrlService extends AsyncTask<String, Integer, String[]> {
 	 * 
 	 * @param context The context to use when writing {@link Toast} error
 	 * messages.  If null, no messages are written.
+	 * @param callback The callback interface to call the function
+	 * {@link AsyncTaskCallback#taskComplete(Object) taskComplete} on when
+	 * {@link GetMp4UrlService#onPostExecute(String[]) onPostExecute} is
+	 * called.  If null, no functions are called.
 	 */
-	public GetMp4UrlService(Context context) {
+	public GetMp4UrlService(Context context, AsyncTaskCallback<String[]> callback) {
 		this.context = context;
+		this.callback = callback;
 		client = new DefaultHttpClient();
 		client.setCookieStore(new BasicCookieStore());
 		CookieSpecFactory csf = new CookieSpecFactory() {
@@ -144,5 +150,7 @@ public class GetMp4UrlService extends AsyncTask<String, Integer, String[]> {
     	super.onPostExecute(result);
     	if (context != null && error != null)
 			Toast.makeText(context, error, Toast.LENGTH_LONG).show();
+    	if (callback != null)
+    		callback.taskComplete(result);
     }
 }
