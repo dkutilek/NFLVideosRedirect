@@ -113,15 +113,17 @@ public class GetMp4UrlService extends AsyncTask<String, Integer, String[]> {
 					String line = br.readLine();
 					while (line != null) {
 						count += line.length();
-						int progress = Math.round((((float) count) / ((float) length) * ((float) pb.getMax())));
+						int progress = Math.round((((float) count) /
+								((float) length) * ((float) pb.getMax())));
 						if (this.progress < progress) {
 							this.progress = progress;
 							publishProgress(progress);
 						}
+						
 						// Occasionally a line comes in thats way too large
 						// and attempting to process a regular expression on it
-						// freezes the entire UI, so we'll skip those for now
-						// until I find a better way to handle it
+						// freezes the task, so we'll skip those for now until
+						// I find a better way to handle it
 						if (line.length() < 5000) {
 							// attempt to match the line
 							Matcher m = p.matcher(line);

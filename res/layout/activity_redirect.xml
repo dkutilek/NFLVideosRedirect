@@ -11,4 +11,11 @@
         android:layout_height="wrap_content" 
         style="@android:style/Widget.ProgressBar.Horizontal"/>
 
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/cancel"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
 </LinearLayout>

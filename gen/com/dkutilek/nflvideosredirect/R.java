@@ -42,6 +42,7 @@ public final class R {
         public static final int action_settings=0x7f050001;
         public static final int app_info=0x7f050002;
         public static final int app_name=0x7f050000;
+        public static final int cancel=0x7f050006;
         public static final int contact_info=0x7f050004;
         public static final int default_info=0x7f050003;
         public static final int mailto_button=0x7f050005;

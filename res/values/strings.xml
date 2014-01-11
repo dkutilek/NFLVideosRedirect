@@ -7,5 +7,6 @@
     <string name="default_info">If you no longer wish to have this app be the default handler for NFL Video URLs, go to your Application Settings, find &quot;NFL Videos Redirect&quot;, and clear defaults.</string>
     <string name="contact_info">Drew Kutilek &lt;drew.kutilek@gmail.com&gt;</string>
     <string name="mailto_button">Send Email</string>
+    <string name="cancel">Press Back to Cancel</string>
 
 </resources>
