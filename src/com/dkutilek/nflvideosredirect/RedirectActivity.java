@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.dkutilek.nflvideosredirect.intentservice.GetMp4UrlService;
@@ -34,16 +35,41 @@ import com.dkutilek.nflvideosredirect.intentservice.GetMp4UrlService;
  */
 public class RedirectActivity extends Activity {
 	
+	private ProgressBar pb;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_redirect);
 		
+		pb = (ProgressBar) this.findViewById(R.id.progressBar);
+		// Start the redirect async task after a delay of 100 ms to let the
+		// progress bar load
+		pb.postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				doRedirect();
+				
+				// This call ensures that nothing is drawn for this activity
+				// and the UI is entirely non-existent.  Without this call
+				// there is a transparent activity placed over the UI after the
+				// Intent is fired.  Works with
+				// android:theme="@android:style/Theme.Translucent.NoTitleBar"
+				// to turn this activity into a "service" that can be launched
+				// via an intent-filter.
+				finish();
+			}
+		}, 100);
+	}
+	
+	private void doRedirect() {
 		// Get url from intent
 		String url = getIntent().getDataString();
 		
 		try {
-			String[] videoUrls = new GetMp4UrlService(getApplicationContext())
-											.execute(url).get();
+			String[] videoUrls = new GetMp4UrlService(this).execute(url).get();
+			if (videoUrls == null)
+				return;
 			
 			String videoUrl = videoUrls[0];
 			if (videoUrl != null) {
@@ -80,13 +106,5 @@ public class RedirectActivity extends Activity {
 					" for url \"" + url + "\"",
 					Toast.LENGTH_LONG).show();
 		}
-		
-		// This call ensures that nothing is drawn for this activity and the UI
-		// is entirely non-existent.  Without this call there is a transparent
-		// activity placed over the UI after the Intent is fired.  Works with
-		// android:theme="@android:style/Theme.Translucent.NoTitleBar" to turn
-		// this activity into a "service" that can be launched via an
-		// intent-filter.
-		finish();
 	}
 }

@@ -1,8 +1,11 @@
 package com.dkutilek.nflvideosredirect.intentservice;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Scanner;
+import java.io.InputStreamReader;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -31,10 +34,11 @@ import android.widget.Toast;
  * 
  * @author Drew Kutilek &lt;drew.kutilek@gmail.com&gt;
  */
-public class GetMp4UrlService extends AsyncTask<String, Void, String[]> {
+public class GetMp4UrlService extends AsyncTask<String, Integer, String[]> {
 
 	private DefaultHttpClient client;
 	private Context context;
+	private String error = null;
 	
 	/**
 	 * Pattern to search for a string of non-whitespace and non-quotation
@@ -44,7 +48,9 @@ public class GetMp4UrlService extends AsyncTask<String, Void, String[]> {
 	 * (&lt;!--&hellip;&nbsp;Video URL:&nbsp;&nbsp;&nbsp;[url].mp4&nbsp;
 	 * &hellip;--&gt;)
 	 */
-	private static final String pattern = "[^\"\\s]*?\\.mp4";
+	private static final String pattern = ".*?([^\"\\s]*?\\.mp4).*?";
+	
+	private static final Pattern p = Pattern.compile(pattern);
 	
 	/**
 	 * Construct a GetMp4UrlService
@@ -88,15 +94,32 @@ public class GetMp4UrlService extends AsyncTask<String, Void, String[]> {
 				// If response is HTTP OK (200), parse mp4 video path from HTML
 				// source 
 				if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
-					Scanner scanner = new Scanner(is);
-					result[i] = scanner.findWithinHorizon(pattern, 0);
+					// read in content one line at a time
+					BufferedReader br = new BufferedReader(new InputStreamReader(is));
+					String line = br.readLine();
+					while (line != null) {
+						// Occasionally a line comes in thats way too large
+						// and attempting to process a regular expression on it
+						// freezes the entire UI, so we'll skip those for now
+						// until I find a better way to handle it
+						if (line.length() < 5000) {
+							// attempt to match the line
+							Matcher m = p.matcher(line);
+							if (m.matches()) {
+								result[i] = m.group(1);
+								break;
+							}
+						}
+						
+						// read another line
+						line = br.readLine();
+					}
 				}
 				else if (context != null) {
-					Toast.makeText(context,
-						"Received HTTP Status " +
+					error = "Received HTTP Status " +
 						statusLine.getReasonPhrase() +
-						" from url \"" + url + "\"",
-						Toast.LENGTH_LONG).show();
+						" from url \"" + url + "\"";
+					return null;
 				}
 				
 				try {
@@ -104,21 +127,22 @@ public class GetMp4UrlService extends AsyncTask<String, Void, String[]> {
 				} catch (IOException e) {/* close quietly */}
 				
 			} catch (ClientProtocolException e) {
-				if (context != null)
-					Toast.makeText(context,
-						"HTTP Request Failed: " + e.getMessage() +
-						" for url \"" + url + "\"",
-						Toast.LENGTH_LONG).show();
+				error = "HTTP Request Failed: " + e.getMessage() +
+						" for url \"" + url + "\"";
+				return null;
 			} catch (IOException e) {
-				if (context != null)
-					Toast.makeText(context,
-						"HTTP Request Failed: " + e.getMessage() +
-						" for url \"" + url + "\"",
-						Toast.LENGTH_LONG).show();
+				error = "HTTP Request Failed: " + e.getMessage() +
+						" for url \"" + url + "\"";
+				return null;
 			}
 		}
 		
 		return result;
 	}
-
+	
+    protected void onPostExecute(String[] result) {
+    	super.onPostExecute(result);
+    	if (context != null && error != null)
+			Toast.makeText(context, error, Toast.LENGTH_LONG).show();
+    }
 }
